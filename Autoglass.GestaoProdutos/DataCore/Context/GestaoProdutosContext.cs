@@ -10,7 +10,9 @@ namespace DataCore.Context
 
         public GestaoProdutosContext(DbContextOptions<GestaoProdutosContext> options)
             : base(options)
-        { }
+        {
+            this.Database.EnsureCreated();
+        }
 
         public DbSet<Fornecedor> Fornecedores { get; set; }
         public DbSet<Produto> Produtos { get; set; }

@@ -23,9 +23,9 @@ namespace Domain.Entities
         public DateTime DataDeValidade { get; private set; }
         public Fornecedor Fornecedor { get; private set; }
 
-        public void EditarCampos(string descricao, DateTime? dataDeFabricacao, DateTime? dataDeValidade, Fornecedor fornecedor)
+        public void EditarCampos(string descricao, DateTime? dataDeFabricacao, DateTime? dataDeValidade, string descricaoFornecedor = null, string cnpj = null)
         {
-            if (!string.IsNullOrEmpty(Descricao))
+            if (!string.IsNullOrEmpty(descricao))
             {
                 Descricao = descricao;
             }
@@ -40,10 +40,7 @@ namespace Domain.Entities
                 DataDeFabricacao = dataDeValidade.Value;
             }
 
-            if (Fornecedor == null)
-            {
-                Fornecedor = fornecedor;
-            }
+            Fornecedor.EditarCampos(descricaoFornecedor, cnpj);
 
             ValidarCampos();
         }

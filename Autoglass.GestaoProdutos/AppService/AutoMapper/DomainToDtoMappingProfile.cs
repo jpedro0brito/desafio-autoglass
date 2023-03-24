@@ -8,8 +8,10 @@ namespace AppService.AutoMapper
     {
         public DomainToDtoMappingProfile()
         {
-            CreateMap<Produto, ProdutoDto>();
-            CreateMap<Fornecedor, FornecedorDto>();
+            CreateMap<Produto, ProdutoDto>()
+                .ForMember(p => p.DataDeValidade, x => x.MapFrom(y => y.DataDeValidade.ToShortDateString()))
+                .ForMember(p => p.DataDeFabricacao, x => x.MapFrom(y => y.DataDeFabricacao.ToShortDateString()));
+            CreateMap<Fornecedor, FornecedorDto>().ForMember(p => p.Cnpj, x => x.MapFrom(y => y.Cnpj.Codigo));
         }
     }
 }

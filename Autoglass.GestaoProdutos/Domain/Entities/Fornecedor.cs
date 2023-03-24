@@ -14,5 +14,18 @@ namespace Domain.Entities
         public int Id { get; private set; }
         public string Descricao { get; private set; }
         public Cnpj Cnpj { get; private set; }
+
+        public void EditarCampos(string descricao = null, string cnpj = null)
+        {
+            if (!string.IsNullOrEmpty(descricao))
+            {
+                Descricao = descricao;
+            }
+
+            if (!string.IsNullOrEmpty(cnpj))
+            {
+                Cnpj = new Cnpj(cnpj);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Domain.ValueObjects
 {
@@ -9,6 +10,10 @@ namespace Domain.ValueObjects
 		protected Cnpj() { }
 		public Cnpj(string cnpj)
 		{
+			if (!EhValido(cnpj))
+			{
+				throw new ArgumentException("CNPJ Invalido.");
+			}
 			Codigo = cnpj;
 		}
 
@@ -32,5 +37,7 @@ namespace Domain.ValueObjects
 				.Replace("/", string.Empty)
 				.Replace("-", string.Empty);
 		}
-	}
+
+		public static bool EhValido(string cnpj) => !string.IsNullOrEmpty(cnpj) && cnpj.All(char.IsDigit) && cnpj.Length == ValorMaxCnpj;
+    }
 }

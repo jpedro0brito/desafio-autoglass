@@ -15,14 +15,17 @@ namespace DataCore.Repositories
         protected readonly GestaoProdutosContext _context;
         protected readonly DbSet<Produto> _dbSet;
 
-        public ProdutoRepository(GestaoProdutosContext context) => 
-            (_context, _dbSet) = (context, _context.Set<Produto>());
+        public ProdutoRepository(GestaoProdutosContext context)
+        {
+            _context = context;
+            _dbSet = _context.Set<Produto>();
+        }
 
         public async Task<Produto> Obter(int id) => await _dbSet
             .Include(p => p.Fornecedor)
             .FirstOrDefaultAsync(p => p.Id == id && p.Situacao);
 
-        public async Task<IList<Produto>> Filtrar(int pagina, ProdutoFiltroDto filtro, int quantidade = 40)
+        public async Task<(IList<Produto> Result, int QuantidadeNoBanco)> Filtrar(int pagina, ProdutoFiltroDto filtro, int quantidade = 40)
         {
             var produtosBanco = _dbSet.Include(p => p.Fornecedor).Where(p => p.Situacao).AsNoTracking();
 
@@ -41,7 +44,12 @@ namespace DataCore.Repositories
             if (!string.IsNullOrEmpty(filtro.Cnpj))
                 produtosBanco = produtosBanco.Where(x => x.Fornecedor.Cnpj.Codigo.Contains(filtro.Cnpj));
 
-            return await ObterPorPagina(pagina, quantidade).ToListAsync();
+            var listaFiltrada = await produtosBanco
+                .Skip(Math.Max(0, pagina - 1) * quantidade)
+                .Take(quantidade)
+                .ToListAsync();
+
+            return (listaFiltrada, await _dbSet.Include(p => p.Fornecedor).Where(p => p.Situacao).CountAsync());
         }
 
         public async Task Gravar(Produto produto)
@@ -55,10 +63,5 @@ namespace DataCore.Repositories
             _dbSet.Update(produto);
             await _context.SaveChangesAsync();
         }
-
-        public IQueryable<Produto> ObterPorPagina(int pagina, int quantidade = 40) => _dbSet
-            .AsNoTracking()
-            .Skip(Math.Max(0, pagina - 1) * quantidade)
-            .Take(quantidade);
     }
 }

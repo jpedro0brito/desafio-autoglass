@@ -17,7 +17,7 @@ namespace Domain.Services
 
         public async Task<Produto> Buscar(int id) => await _repository.Obter(id);
 
-        public async Task<IList<Produto>> Filtrar(int pagina, ProdutoFiltroDto filtro) => await _repository.Filtrar(pagina, filtro);
+        public async Task<(IList<Produto> Result, int QuantidadeNoBanco)> Filtrar(int pagina, ProdutoFiltroDto filtro) => await _repository.Filtrar(pagina, filtro);
 
         public async Task Criar(string descricao, DateTime dataDeFabricacao, DateTime dataDeValidade, Fornecedor fornecedor) 
         {
@@ -25,10 +25,10 @@ namespace Domain.Services
             await _repository.Gravar(produto);
         }
 
-        public async Task Editar(int id, string descricao = null, DateTime? dataDeFabricacao = null, DateTime? dataDeValidade = null, Fornecedor fornecedor = null)
+        public async Task Editar(int id, string descricao = null, DateTime? dataDeFabricacao = null, DateTime? dataDeValidade = null, string descricaoFornecedor = null, string cnpj = null)
         {
             var produto = await _repository.Obter(id);
-            produto.EditarCampos(descricao, dataDeFabricacao, dataDeValidade, fornecedor);
+            produto.EditarCampos(descricao, dataDeFabricacao, dataDeValidade, descricaoFornecedor, cnpj);
             await _repository.Atualizar(produto);
         }
 

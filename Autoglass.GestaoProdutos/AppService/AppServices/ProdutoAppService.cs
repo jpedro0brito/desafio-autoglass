@@ -4,7 +4,6 @@ using AutoMapper;
 using Domain.Dtos;
 using Domain.Entities;
 using Domain.Interfaces.Services;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -23,22 +22,30 @@ namespace AppService.AppServices
             return _mapper.Map<ProdutoDto>(produto);
         }
 
-        public async Task<IList<ProdutoDto>> Filtrar(int pagina, ProdutoFiltroDto filtro)
+        public async Task<ProdutoFiltradoDto> Filtrar(int pagina, ProdutoFiltroDto filtro)
         {
-            var listaDeProdutos = await _produtoService.Filtrar(pagina, filtro);
-            return _mapper.Map<List<ProdutoDto>>(listaDeProdutos);
+            var resultFiltro = await _produtoService.Filtrar(pagina, filtro);
+            var listaDeProdutosDto = _mapper.Map<List<ProdutoDto>>(resultFiltro.Result);
+
+
+            return new ProdutoFiltradoDto 
+            {
+                QuantidadeNoBanco = resultFiltro.QuantidadeNoBanco,
+                TamanhoDaPagina = listaDeProdutosDto.Count,
+                Pagina = pagina,
+                Resultado = listaDeProdutosDto
+            };
         }
 
-        public async Task Criar(string descricao, DateTime dataDeFabricacao, DateTime dataDeValidade, FornecedorDto fornecedorDto)
+        public async Task Criar(CriarProdutoDto criarProdutoDto)
         {
-            var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
-            await _produtoService.Criar(descricao, dataDeFabricacao, dataDeValidade, fornecedor);
+            var fornecedor = new Fornecedor(criarProdutoDto.DescricaoFornecedor, criarProdutoDto.Cnpj);
+            await _produtoService.Criar(criarProdutoDto.Descricao, criarProdutoDto.DataDeFabricacao, criarProdutoDto.DataDeValidade, fornecedor);
         }
 
-        public async Task Editar(int id, string descricao = null, DateTime? dataDeFabricacao = null, DateTime? dataDeValidade = null, FornecedorDto fornecedorDto = null)
+        public async Task Editar(EditarProdutoDto produtoDto)
         {
-            var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
-            await _produtoService.Editar(id, descricao, dataDeFabricacao, dataDeValidade, fornecedor);
+            await _produtoService.Editar(produtoDto.Id, produtoDto.Descricao, produtoDto.DataDeFabricacao, produtoDto.DataDeValidade, produtoDto.DescricaoFornecedor, produtoDto.Cnpj);
         }
 
         public async Task Excluir(int id) => await _produtoService.Excluir(id);

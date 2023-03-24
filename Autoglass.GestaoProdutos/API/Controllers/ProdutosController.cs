@@ -1,9 +1,7 @@
-﻿using AppService.Interfaces;
+﻿using AppService.Dtos;
+using AppService.Interfaces;
 using Domain.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,11 +23,11 @@ namespace API.Controllers
             return Ok(produtoDto);
         }
 
-        [HttpPost("Filtro/{paigna:int}/pagina")]
-        public async Task<IActionResult> BuscarUmProduto(int paigna, [FromServices] IProdutoAppService appService, [FromBody] ProdutoFiltroDto filtroDto)
+        [HttpPost("Filtro/{codigo:int}/pagina")]
+        public async Task<IActionResult> BuscarUmProduto(int codigo, [FromServices] IProdutoAppService appService, [FromBody] ProdutoFiltroDto filtroDto)
         {
-            var listaDeProdutoDto = await appService.Filtrar(paigna, filtroDto);
-            if (!listaDeProdutoDto.Any())
+            var listaDeProdutoDto = await appService.Filtrar(codigo, filtroDto);
+            if (listaDeProdutoDto == null)
             {
                 return NoContent();
             }
@@ -38,15 +36,24 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AdicionarUmProduto([FromServices] IProdutoAppService appService, [FromBody] ProdutoFiltroDto filtroDto)
+        public async Task<IActionResult> AdicionarUmProduto([FromServices] IProdutoAppService appService, [FromBody] CriarProdutoDto produtoDto)
         {
-            var listaDeProdutoDto = await appService.Criar(paigna, filtroDto);
-            if (!listaDeProdutoDto.Any())
-            {
-                return NoContent();
-            }
+            await appService.Criar(produtoDto);
+            return Ok();
+        }
 
-            return Ok(listaDeProdutoDto);
+        [HttpPut]
+        public async Task<IActionResult> AtualizarUmProduto([FromServices] IProdutoAppService appService, [FromBody] EditarProdutoDto produtoDto)
+        {
+            await appService.Editar(produtoDto);
+            return Ok();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> RemoveUmProduto(int id, [FromServices] IProdutoAppService appService)
+        {
+            await appService.Excluir(id);
+            return Ok();
         }
     }
 }
